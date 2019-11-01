@@ -13,6 +13,7 @@ const User = new Schema({
           quantity:{type: Number}
       }
   ]
+  
 });
 
 // User.beforeCreate(function(user) {
@@ -22,4 +23,4 @@ const User = new Schema({
 
 const User = mongoose.model("User", userSchema);
 
-module.exports = user;
+module.exports = User;
