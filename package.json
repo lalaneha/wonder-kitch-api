@@ -1,0 +1,30 @@
+{
+  "name": "wonder-kitch-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lalaneha/wonder-kitch-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/lalaneha/wonder-kitch-api/issues"
+  },
+  "homepage": "https://github.com/lalaneha/wonder-kitch-api#readme",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "bcrypt": "^3.0.6",
+    "connect-mongo": "^3.1.2",
+    "express": "^4.17.1",
+    "express-session": "^1.17.0",
+    "mongoose": "^5.7.7",
+    "querystring": "^0.2.0"
+  }
+}
