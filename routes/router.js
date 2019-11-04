@@ -11,9 +11,6 @@ router.get('/', function (req, res, next) {
   return res.sendFile(path.join(__dirname + '/templateLogReg/index.html'));
 });
 
-router.get('/test', function (req, res) {
-  return res.json('Hello Worlds!!')  
-})
 
 //POST route for updating data
 router.post('/', function (req, res, next) {
