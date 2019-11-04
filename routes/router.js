@@ -12,7 +12,29 @@ router.get('/', function (req, res, next) {
 
 //POST route for updating data
 router.post('/', function (req, res, next) {
-  // confirm that user typed same password twice
+    let exist=false;
+    User.find({where:{email:req.body.email}})
+    if (dbUser.length===0) {
+
+
+    
+    // .then (dbUser=>{
+    //     console.log("Hello db" , dbUser)
+
+    if (dbUser.length===0) {
+exist=false
+    //     req.body = user.password  
+
+    //    //no user found with email b/c empty.  
+    //    //hash given password
+    //    //replace password that exists in req.body and reassign req.body to hash
+    //    //new user object with no sensitive data and assign that to new user
+    // }
+
+    // })
+    // .catch(err => {
+    //     console.log(err)})
+    // confirm that user typed same password twice
   if (req.body.password !== req.body.passwordConf) {
     var err = new Error('Passwords do not match.');
     err.status = 400;
@@ -20,7 +42,8 @@ router.post('/', function (req, res, next) {
     return next(err);
   }
 
-  if (req.body.email &&
+  if (
+    req.body.email &&
     req.body.username &&
     req.body.password &&
     req.body.passwordConf) {
@@ -30,6 +53,21 @@ router.post('/', function (req, res, next) {
       user: req.body.username,
       password: req.body.password,
     }
+    
+    User.find({where:{email:req.body.email}})
+    if (dbUser!== {email:req.body.email}, function(err,res) {
+        User.create(userData, function (error, user) {
+            if (error) {
+              return next(error);
+            } else {
+                console.log(req)
+              req.session.userId = user._id;
+              return res.redirect('/profile');
+            }
+          }); 
+    })
+   
+ 
 
     User.create(userData, function (error, user) {
       if (error) {
@@ -41,7 +79,7 @@ router.post('/', function (req, res, next) {
       }
     });
 
-  } else if (req.body.logemail && req.body.logpassword) {
+   else if (req.body.logemail && req.body.logpassword) {
     User.authenticate(req.body.logemail, req.body.logpassword, function (error, user) {
       if (error || !user) {
         var err = new Error('Wrong email or password.');
@@ -71,13 +109,13 @@ router.get('/profile', function (req, res, next) {
           err.status = 400;
           return next(err);
         } else {
-          return res.send('<h1>Name: </h1>' + user.username + '<h2>Mail: </h2>' + user.email + '<br><a type="button" href="/logout">Logout</a>')
+          return res.send( user.username,user.email)
         }
       }
     });
 });
 
-// GET for logout logout
+// GET for logout
 router.get('/logout', function (req, res, next) {
   if (req.session) {
     // delete session object
