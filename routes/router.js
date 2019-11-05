@@ -92,28 +92,40 @@ router.get('/logout', function (req, res, next) {
 });
 
 // GET route after registering
-// router.put('/quantity', function (req, res, next) {
-//   User.findByIdAndUpdate({_id: "5dc0a75e4d4b3445587437d0"}, {$set:{quantity:2}},{ new: true }).then(function(user){
-//     res.json(user);
-//     console.log(user);
-//     // user[0].update({_id: "5dc0a75e4d4b3445587437d0", quantity:2})
-  
-//   }).then(function(data){
-//     res.json(data)
-//   }).catch(function(err){
-//     throw err
-//   });
-  
-// });
-router.put('/quantity', function (req, res, next) {
-  User.update({_id: "5dc0a75e4d4b3445587437d0"}, {$set: {items:[{quantity:2}]}, new: true}, function(err, result) {
-    if(err) {
-    console.log(err)
+router.put('/addItems', function (req, res, next) {
+   User.find({_id: req.body.userID}).then(function(user){
+     let existItem=false;
+     let itemId;
+    for (let i = 0; i < user[0].items.length; i++){
+      itemId=i;
+      if(user[0].items[i].name.toLowerCase() === req.body.name.toLowerCase()){
+        existItem=true;
+        console.log(user[0].items[0].quantity)
+        
+        console.log("req.body.quantity ",req.body.quantity)
+        const qty = user[0].items[0].quantity
+        const total = qty+req.body.quantity
+        console.log("total", total);
+        console.log(user)
+        const newData = User.updateOne({"items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true})
+        return newData
+      }      
     }
-    console.log(result);
+     if(!existItem){
+      const newData = User.updateOne({"_id": user[0]._id}, {$push: {"items":{id:itemId+1, name:req.body.name,quantity:req.body.quantity}}, new: true})
+      
+      return newData
+    }
+  
+  }).then(function(data){
+    console.log("data", data)
+    res.json(data)
+  }).catch(function(err){
+    throw err
+  });
   
 });
-console.log(res)
-});
+
+
 
 module.exports = router;
