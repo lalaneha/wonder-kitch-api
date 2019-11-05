@@ -137,7 +137,7 @@ router.post('/login', function (req, res, next) {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/search",
       params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+        apiKey:process.env.SPOONY_API_KEY,
         number: 100,
         query: req.params.query,
         instructionsRequired: true
@@ -158,7 +158,7 @@ router.post('/login', function (req, res, next) {
       headers:{
         "Content-Type":"application/octet-stream"
       },
-      url: "https://api.spoonacular.com/recipes/findByIngredients?apiKey=58cfd4a9c5d74b4b8a81d26ef617114f", 
+      url: "https://api.spoonacular.com/recipes/findByIngredients?apiKey=" + process.env.SPOONY_API_KEY, 
       params:{
         ingredients:req.params.query
         }
@@ -176,7 +176,7 @@ router.post('/login', function (req, res, next) {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/"+req.params.query+"/information",
       params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+        apiKey:process.env.SPOONY_API_KEY,
         id: req.params.query,
         includeNutrition: true
         }   
@@ -194,7 +194,7 @@ router.post('/login', function (req, res, next) {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/"+req.params.query+"/analyzedInstructions",
       params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+        apiKey:process.env.SPOONY_API_KEY,
         id: req.params.query,
         stepBreakdown: true
       }   
@@ -212,7 +212,7 @@ router.post('/login', function (req, res, next) {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/quickAnswer",
       params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+        apiKey:process.env.SPOONY_API_KEY,
         q: req.params.query
         }   
       })          
@@ -223,49 +223,6 @@ router.post('/login', function (req, res, next) {
         console.log(err);
       });
   });
- 
-  router.post('/takePicture/:query', function (req) {
-    let result;
-    let pic=req.params.query;
-    const data = new FormData()
-    data.append('file', pic)
-    console.log("this is it ndm",data)
-    //  await
-      axios({
-       method:"POST",
-       url:"https://api.taggun.io/api/receipt/v1/verbose/file", req,
-       headers:{
-         "Content-Type": "application/x-www-form-urlencoded",
-         "apikey":"ab7591d0fabe11e98bfadfb7eb1aa8b5",
-         "processData": false,
-         "contentType": false,
-         "mimeType": "multipart/form-data"
-       }      
-       }).then((params)=> {
-         console.log(params)
-         result=params.data.text.text;
-         console.log(params)
-       })
-       .catch((error)=>{
-         console.log(error)
-       })  
-       //  axios( {
-       //   method: 'post',
-       //   headers:{
-       //     "Content-Type":"application/x-www-form-urlencoded"
-       //   },
-       //   url: "https://api.spoonacular.com/food/detect?apiKey=58cfd4a9c5d74b4b8a81d26ef617114f", 
-       //   data: querystring.stringify({
-       //   text:result
-       //   })
-       // })       
-       // .then(function (response) {
-       //   return res.json(response.data)
-       // })
-       // .catch(function (err) {
-       //   console.log(err);
-       // });
-       });
 
 
        // GET route after registering

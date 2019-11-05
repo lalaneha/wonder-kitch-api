@@ -6,6 +6,7 @@ const app = express();
 const cors = require('cors');
 var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
+require('dotenv').config();
 
 const PORT = process.env.PORT || 3001;
 
