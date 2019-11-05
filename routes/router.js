@@ -7,6 +7,7 @@ var FormData = require("form-data");
 
 
 
+
 // GET route for reading data
 router.get('/', function (req, res, next) {
   return res.sendFile(path.join(__dirname + '/templateLogReg/index.html'));
@@ -15,7 +16,7 @@ router.get('/', function (req, res, next) {
 
 //POST route for updating data
 router.post('/login', function (req, res, next) {
-
+  
 
   if (req.body.password !== req.body.passwordConf) {
     var err = new Error('Passwords do not match.');
@@ -36,13 +37,42 @@ router.post('/login', function (req, res, next) {
       }
       
       User.create(userData, function (error, user) {
-        if (error) {
-          return next(error);
-        } else {
-          console.log(req)
-          req.session.userId = user._id;
-          return res.redirect('/');
-        }
+        console.log()
+        let userExists = false;
+        User.find({email:req.body.email})
+        .then(function(res)
+        {if (res) {
+          userExists=true;
+          console.log("This is the end", res)
+          if (userExists){
+      
+            let err = new Error ('User already exists');
+            console.log("User already exists")
+            return res.redirect('/login');
+          }
+          else {
+            console.log("it's creating a user")
+            req.session.userId = user._id;
+            // return res.redirect('/');
+          }
+          
+        }}
+        )
+        // if (userExists){
+      
+        //   let err = new Error ('User already exists');
+        //   console("User already exists")
+        //   return res.redirect('/login');
+        // }
+
+
+        // elseif (error) {
+        //   return next(error);}
+        //  else {
+        //   console.log("it's creating a user")
+        //   req.session.userId = user._id;
+        //   // return res.redirect('/');
+        // }
       });
       
     } else if (req.body.logemail && req.body.logpassword) {
@@ -53,8 +83,10 @@ router.post('/login', function (req, res, next) {
           return next(err);
         } else {
           req.session.userId = user._id;
+         
           console.log("User logged in " + user)
-          return res.redirect('/');
+       
+          return res.json(user)
         }
       });
     } else {
@@ -74,6 +106,7 @@ router.post('/login', function (req, res, next) {
       } else {
         if (user === null) {
           var err = new Error('Not authorized! Go back!');
+          console.log(EvalError)
           err.status = 400;
           return next(err);
         } else {
@@ -190,5 +223,43 @@ router.post('/login', function (req, res, next) {
         console.log(err);
       });
   });
+
+
+       // GET route after registering
+router.put('/addItems', function (req, res, next) {
+   User.find({_id: req.body.userID}).then(function(user){
+     let existItem=false;
+     let itemId;
+    for (let i = 0; i < user[0].items.length; i++){
+      itemId=i;
+      if(user[0].items[i].name.toLowerCase() === req.body.name.toLowerCase()){
+        existItem=true;
+        console.log(user[0].items[0].quantity)
+        
+        console.log("req.body.quantity ",req.body.quantity)
+        const qty = user[0].items[0].quantity
+        const total = qty+req.body.quantity
+        console.log("total", total);
+        console.log(user)
+        const newData = User.updateOne({"items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true})
+        return newData
+      }      
+    }
+     if(!existItem){
+      const newData = User.updateOne({"_id": user[0]._id}, {$push: {"items":{id:itemId+1, name:req.body.name,quantity:req.body.quantity}}, new: true})
+      
+      return newData
+    }
   
-  module.exports = router;
+  }).then(function(data){
+    console.log("data", data)
+    res.json(data)
+  }).catch(function(err){
+    throw err
+  });
+  
+});
+
+
+
+module.exports = router;

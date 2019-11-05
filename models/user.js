@@ -15,8 +15,7 @@ const UserSchema = new Schema({
           quantity:{type: Number},
           group:{type: String}
       }
-  ]
-  
+  ]  
 });
 
 UserSchema.statics.authenticate = function (email, password, callback) {
