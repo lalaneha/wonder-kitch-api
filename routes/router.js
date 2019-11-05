@@ -184,10 +184,10 @@ router.post('/', function (req, res, next) {
       });
   });
  
-  router.get('/takePicture/:query', async function (req,res) {
+  router.post('/takePicture', async function (req,res) {
     let result;
     const data = new FormData()
-  data.append('file', req.params.query)
+  data.append('file', req.body)
      await axios({
        method:"POST",
        url:"https://api.taggun.io/api/receipt/v1/verbose/file",data,
