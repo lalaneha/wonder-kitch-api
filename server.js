@@ -5,11 +5,13 @@ const routes = require("./routes/router");
 const app = express();
 var session = require('express-session');
 var MongoStore = require('connect-mongo')(session);
+const cors = require('cors');
 
 const PORT = process.env.PORT || 3001;
 
 
 
+app.use(cors());
 
 // Define middleware here
 app.use(express.urlencoded({ extended: true }));
