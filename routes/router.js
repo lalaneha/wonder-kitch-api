@@ -13,8 +13,9 @@ router.get('/', function (req, res, next) {
 
 
 //POST route for updating data
-router.post('/', function (req, res, next) {
-  // confirm that user typed same password twice
+router.post('/login', function (req, res, next) {
+
+
   if (req.body.password !== req.body.passwordConf) {
     var err = new Error('Passwords do not match.');
     err.status = 400;
@@ -39,22 +40,24 @@ router.post('/', function (req, res, next) {
         } else {
           console.log(req)
           req.session.userId = user._id;
-          return res.redirect('/profile');
+          return res.redirect('/');
         }
       });
       
     } else if (req.body.logemail && req.body.logpassword) {
       User.authenticate(req.body.logemail, req.body.logpassword, function (error, user) {
-        if (error || !user) {
+        if (error) {
           var err = new Error('Wrong email or password.');
           err.status = 401;
           return next(err);
         } else {
           req.session.userId = user._id;
-          return res.redirect('/profile');
+          console.log("User logged in " + user)
+          return res.redirect('/');
         }
       });
     } else {
+      console.log(req.body)
       var err = new Error('All fields required.');
       err.status = 400;
       return next(err);
@@ -73,7 +76,7 @@ router.post('/', function (req, res, next) {
           err.status = 400;
           return next(err);
         } else {
-          return res.send('<h1>Name: </h1>' + user.username + '<h2>Mail: </h2>' + user.email + '<br><a type="button" href="/logout">Logout</a>')
+          return res.send( user.username,user.email)
         }
       }
     });
@@ -83,6 +86,7 @@ router.post('/', function (req, res, next) {
   router.get('/logout', function (req, res, next) {
     if (req.session) {
       // delete session object
+      console.log("Logged out " + req.session.email)
       req.session.destroy(function (err) {
         if (err) {
           return next(err);
