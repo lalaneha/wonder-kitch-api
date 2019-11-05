@@ -94,6 +94,7 @@ router.post('/', function (req, res, next) {
   });
   
   router.get('/recipeSearch/:query', function (req,res) {
+    console.log('/recipeSearch triggered')
    axios( {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/search",
@@ -113,6 +114,7 @@ router.post('/', function (req, res, next) {
   });
 
   router.get('/recipeIngredients/:query', function (req,res) {
+    console.log('/recipeIngredients triggered')
     axios( {
       method: 'GET',
       headers:{
@@ -184,13 +186,12 @@ router.post('/', function (req, res, next) {
       });
   });
  
-  router.get('/takePicture/:query', async function (req,res) {
+  router.post('/takePicture', async function (req,res) {
     let result;
-    const data = new FormData()
-  data.append('file', req.params.query)
+  
      await axios({
        method:"POST",
-       url:"https://api.taggun.io/api/receipt/v1/verbose/file",data,
+       url:"https://api.taggun.io/api/receipt/v1/verbose/file", req,
        headers:{
          "Content-Type": "application/x-www-form-urlencoded",
          "apikey":"ab7591d0fabe11e98bfadfb7eb1aa8b5",
@@ -199,6 +200,7 @@ router.post('/', function (req, res, next) {
          "mimeType": "multipart/form-data"
        }      
        }).then((params)=> {
+         console.log(params)
          result=params.data.text.text;
        })
        .catch((error)=>{
