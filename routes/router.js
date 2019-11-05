@@ -3,6 +3,7 @@ var router = express.Router();
 var User = require('../models/user');
 var axios = require("axios");
 var querystring = require("querystring");
+var FormData = require("form-data");
 
 
 
@@ -190,10 +191,14 @@ router.post('/login', function (req, res, next) {
       });
   });
  
-  router.post('/takePicture', async function (req,res) {
+  router.post('/takePicture/:query', function (req) {
     let result;
-  
-     await axios({
+    let pic=req.params.query;
+    const data = new FormData()
+    data.append('file', pic)
+    console.log("this is it ndm",data)
+    //  await
+      axios({
        method:"POST",
        url:"https://api.taggun.io/api/receipt/v1/verbose/file", req,
        headers:{
@@ -206,26 +211,29 @@ router.post('/login', function (req, res, next) {
        }).then((params)=> {
          console.log(params)
          result=params.data.text.text;
+         console.log(params)
        })
        .catch((error)=>{
          console.log(error)
        })  
-       axios( {
-        method: 'post',
-        headers:{
-          "Content-Type":"application/x-www-form-urlencoded"
-        },
-        url: "https://api.spoonacular.com/food/detect?apiKey=58cfd4a9c5d74b4b8a81d26ef617114f", 
-        data: querystring.stringify({
-        text:result
-        })
-      })       
-      .then(function (response) {
-        return res.json(response.data)
-      })
-      .catch(function (err) {
-        console.log(err);
-      });
+
+
+      //  axios( {
+      //   method: 'post',
+      //   headers:{
+      //     "Content-Type":"application/x-www-form-urlencoded"
+      //   },
+      //   url: "https://api.spoonacular.com/food/detect?apiKey=58cfd4a9c5d74b4b8a81d26ef617114f", 
+      //   data: querystring.stringify({
+      //   text:result
+      //   })
+      // })       
+      // .then(function (response) {
+      //   return res.json(response.data)
+      // })
+      // .catch(function (err) {
+      //   console.log(err);
+      // });
   });
   
   module.exports = router;
