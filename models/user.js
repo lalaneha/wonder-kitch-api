@@ -12,13 +12,14 @@ const UserSchema = new Schema({
       {
           id:{type: Number, required: true},
           name:{type: String, required: true},
-          quantity:{type: Number}
+          quantity:{type: Number},
+          group:{type: String}
       }
   ]
   
 });
 
-UserSchema.statics.authenticate = function (email, password, user, callback) {
+UserSchema.statics.authenticate = function (email, password, callback) {
   User.findOne({ email: email })
     .exec(function (err, user) {
       if (err) {

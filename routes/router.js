@@ -3,6 +3,7 @@ var router = express.Router();
 var User = require('../models/user');
 var axios = require("axios");
 var querystring = require("querystring");
+var FormData = require("form-data");
 
 
 
@@ -13,8 +14,9 @@ router.get('/', function (req, res, next) {
 
 
 //POST route for updating data
-router.post('/', function (req, res, next) {
-  // confirm that user typed same password twice
+router.post('/login', function (req, res, next) {
+
+
   if (req.body.password !== req.body.passwordConf) {
     var err = new Error('Passwords do not match.');
     err.status = 400;
@@ -39,22 +41,24 @@ router.post('/', function (req, res, next) {
         } else {
           console.log(req)
           req.session.userId = user._id;
-          return res.redirect('/profile');
+          return res.redirect('/');
         }
       });
       
     } else if (req.body.logemail && req.body.logpassword) {
       User.authenticate(req.body.logemail, req.body.logpassword, function (error, user) {
-        if (error || !user) {
+        if (error) {
           var err = new Error('Wrong email or password.');
           err.status = 401;
           return next(err);
         } else {
           req.session.userId = user._id;
-          return res.redirect('/profile');
+          console.log("User logged in " + user)
+          return res.redirect('/');
         }
       });
     } else {
+      console.log(req.body)
       var err = new Error('All fields required.');
       err.status = 400;
       return next(err);
@@ -73,7 +77,7 @@ router.post('/', function (req, res, next) {
           err.status = 400;
           return next(err);
         } else {
-          return res.send('<h1>Name: </h1>' + user.username + '<h2>Mail: </h2>' + user.email + '<br><a type="button" href="/logout">Logout</a>')
+          return res.send( user.username,user.email)
         }
       }
     });
@@ -83,6 +87,7 @@ router.post('/', function (req, res, next) {
   router.get('/logout', function (req, res, next) {
     if (req.session) {
       // delete session object
+      console.log("Logged out " + req.session.email)
       req.session.destroy(function (err) {
         if (err) {
           return next(err);
@@ -94,6 +99,7 @@ router.post('/', function (req, res, next) {
   });
   
   router.get('/recipeSearch/:query', function (req,res) {
+    console.log('/recipeSearch triggered')
    axios( {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/search",
@@ -113,6 +119,7 @@ router.post('/', function (req, res, next) {
   });
 
   router.get('/recipeIngredients/:query', function (req,res) {
+    console.log('/recipeIngredients triggered')
     axios( {
       method: 'GET',
       headers:{
@@ -184,13 +191,16 @@ router.post('/', function (req, res, next) {
       });
   });
  
-  router.get('/takePicture/:query', async function (req,res) {
+  router.post('/takePicture/:query', function (req) {
     let result;
+    let pic=req.params.query;
     const data = new FormData()
-  data.append('file', req.params.query)
-     await axios({
+    data.append('file', pic)
+    console.log("this is it ndm",data)
+    //  await
+      axios({
        method:"POST",
-       url:"https://api.taggun.io/api/receipt/v1/verbose/file",data,
+       url:"https://api.taggun.io/api/receipt/v1/verbose/file", req,
        headers:{
          "Content-Type": "application/x-www-form-urlencoded",
          "apikey":"ab7591d0fabe11e98bfadfb7eb1aa8b5",
@@ -199,27 +209,31 @@ router.post('/', function (req, res, next) {
          "mimeType": "multipart/form-data"
        }      
        }).then((params)=> {
+         console.log(params)
          result=params.data.text.text;
+         console.log(params)
        })
        .catch((error)=>{
          console.log(error)
        })  
-       axios( {
-        method: 'post',
-        headers:{
-          "Content-Type":"application/x-www-form-urlencoded"
-        },
-        url: "https://api.spoonacular.com/food/detect?apiKey=58cfd4a9c5d74b4b8a81d26ef617114f", 
-        data: querystring.stringify({
-        text:result
-        })
-      })       
-      .then(function (response) {
-        return res.json(response.data)
-      })
-      .catch(function (err) {
-        console.log(err);
-      });
+
+
+      //  axios( {
+      //   method: 'post',
+      //   headers:{
+      //     "Content-Type":"application/x-www-form-urlencoded"
+      //   },
+      //   url: "https://api.spoonacular.com/food/detect?apiKey=58cfd4a9c5d74b4b8a81d26ef617114f", 
+      //   data: querystring.stringify({
+      //   text:result
+      //   })
+      // })       
+      // .then(function (response) {
+      //   return res.json(response.data)
+      // })
+      // .catch(function (err) {
+      //   console.log(err);
+      // });
   });
   
   module.exports = router;
