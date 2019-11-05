@@ -218,24 +218,60 @@ router.post('/login', function (req, res, next) {
        .catch((error)=>{
          console.log(error)
        })  
+       //  axios( {
+       //   method: 'post',
+       //   headers:{
+       //     "Content-Type":"application/x-www-form-urlencoded"
+       //   },
+       //   url: "https://api.spoonacular.com/food/detect?apiKey=58cfd4a9c5d74b4b8a81d26ef617114f", 
+       //   data: querystring.stringify({
+       //   text:result
+       //   })
+       // })       
+       // .then(function (response) {
+       //   return res.json(response.data)
+       // })
+       // .catch(function (err) {
+       //   console.log(err);
+       // });
+       });
 
 
-      //  axios( {
-      //   method: 'post',
-      //   headers:{
-      //     "Content-Type":"application/x-www-form-urlencoded"
-      //   },
-      //   url: "https://api.spoonacular.com/food/detect?apiKey=58cfd4a9c5d74b4b8a81d26ef617114f", 
-      //   data: querystring.stringify({
-      //   text:result
-      //   })
-      // })       
-      // .then(function (response) {
-      //   return res.json(response.data)
-      // })
-      // .catch(function (err) {
-      //   console.log(err);
-      // });
+       // GET route after registering
+router.put('/addItems', function (req, res, next) {
+   User.find({_id: req.body.userID}).then(function(user){
+     let existItem=false;
+     let itemId;
+    for (let i = 0; i < user[0].items.length; i++){
+      itemId=i;
+      if(user[0].items[i].name.toLowerCase() === req.body.name.toLowerCase()){
+        existItem=true;
+        console.log(user[0].items[0].quantity)
+        
+        console.log("req.body.quantity ",req.body.quantity)
+        const qty = user[0].items[0].quantity
+        const total = qty+req.body.quantity
+        console.log("total", total);
+        console.log(user)
+        const newData = User.updateOne({"items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true})
+        return newData
+      }      
+    }
+     if(!existItem){
+      const newData = User.updateOne({"_id": user[0]._id}, {$push: {"items":{id:itemId+1, name:req.body.name,quantity:req.body.quantity}}, new: true})
+      
+      return newData
+    }
+  
+  }).then(function(data){
+    console.log("data", data)
+    res.json(data)
+  }).catch(function(err){
+    throw err
   });
   
-  module.exports = router;
+});
+
+
+
+module.exports = router;
