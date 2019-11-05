@@ -7,6 +7,7 @@ var FormData = require("form-data");
 
 
 
+
 // GET route for reading data
 router.get('/', function (req, res, next) {
   return res.sendFile(path.join(__dirname + '/templateLogReg/index.html'));
@@ -15,7 +16,7 @@ router.get('/', function (req, res, next) {
 
 //POST route for updating data
 router.post('/login', function (req, res, next) {
-
+  
 
   if (req.body.password !== req.body.passwordConf) {
     var err = new Error('Passwords do not match.');
@@ -36,13 +37,42 @@ router.post('/login', function (req, res, next) {
       }
       
       User.create(userData, function (error, user) {
-        if (error) {
-          return next(error);
-        } else {
-          console.log(req)
-          req.session.userId = user._id;
-          return res.redirect('/');
-        }
+        console.log()
+        let userExists = false;
+        User.find({email:req.body.email})
+        .then(function(res)
+        {if (res) {
+          userExists=true;
+          console.log("This is the end", res)
+          if (userExists){
+      
+            let err = new Error ('User already exists');
+            console.log("User already exists")
+            return res.redirect('/login');
+          }
+          else {
+            console.log("it's creating a user")
+            req.session.userId = user._id;
+            // return res.redirect('/');
+          }
+          
+        }}
+        )
+        // if (userExists){
+      
+        //   let err = new Error ('User already exists');
+        //   console("User already exists")
+        //   return res.redirect('/login');
+        // }
+
+
+        // elseif (error) {
+        //   return next(error);}
+        //  else {
+        //   console.log("it's creating a user")
+        //   req.session.userId = user._id;
+        //   // return res.redirect('/');
+        // }
       });
       
     } else if (req.body.logemail && req.body.logpassword) {
@@ -76,6 +106,7 @@ router.post('/login', function (req, res, next) {
       } else {
         if (user === null) {
           var err = new Error('Not authorized! Go back!');
+          console.log(EvalError)
           err.status = 400;
           return next(err);
         } else {
