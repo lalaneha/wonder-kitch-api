@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var User = require('../models/user');
+var Item = require('../models/item');
 var axios = require("axios");
 var querystring = require("querystring");
 var FormData = require("form-data");

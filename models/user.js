@@ -8,14 +8,17 @@ const UserSchema = new Schema({
   password: { type: String, required: true },
   servingSize: {type: Number, default: 1},
   date: { type: Date, default: Date.now },
-  items: [
-      {
-          id:{type: Number, required: true},
-          name:{type: String, required: true},
-          quantity:{type: Number},
-          group:{type: String}
-      }
-  ]
+  // items: [
+  //     {
+  //         id:{type: Number, required: true},
+  //         name:{type: String, required: true},
+  //         quantity:{type: Number},
+  //         group:{type: String}
+  //     }
+  items: [{
+    type: Schema.Types.ObjectId,
+    ref: "Item"
+}]
   
 });
 
