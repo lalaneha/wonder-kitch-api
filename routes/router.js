@@ -8,6 +8,7 @@ var path= require("path")
 var ObjectID = require('mongodb').ObjectID;
 
 
+
 // GET route for reading data
 // router.get('/', function (req, res, next) {
 //   return res.sendFile(path.join(__dirname + '/templateLogReg/index.html'));
@@ -37,11 +38,13 @@ router.post('/login', function (req, res, next) {
       }
       
       User.create(userData, function (error, user) {
+        console.log()
         let userExists = false;
         User.find({email:req.body.email})
-        .then(function(dbres)
-        {if (dbres) {
-          console.log("This is the end", dbres)
+        .then(function(res)
+        {if (res) {
+          userExists=true;
+          console.log("This is the end", res)
           if (userExists){
       
             let err = new Error ('User already exists');
