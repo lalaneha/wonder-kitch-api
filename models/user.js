@@ -14,8 +14,7 @@ const UserSchema = new Schema({
           name:{type: String, required: true},
           quantity:{type: Number}
       }
-  ]
-  
+  ]  
 });
 
 UserSchema.statics.authenticate = function (email, password, user, callback) {

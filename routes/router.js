@@ -91,4 +91,29 @@ router.get('/logout', function (req, res, next) {
   }
 });
 
+// GET route after registering
+// router.put('/quantity', function (req, res, next) {
+//   User.findByIdAndUpdate({_id: "5dc0a75e4d4b3445587437d0"}, {$set:{quantity:2}},{ new: true }).then(function(user){
+//     res.json(user);
+//     console.log(user);
+//     // user[0].update({_id: "5dc0a75e4d4b3445587437d0", quantity:2})
+  
+//   }).then(function(data){
+//     res.json(data)
+//   }).catch(function(err){
+//     throw err
+//   });
+  
+// });
+router.put('/quantity', function (req, res, next) {
+  User.findByIdAndUpdate({_id: "5dc0a75e4d4b3445587437d0"}, {$set:{quantity:2}, new: true}, function(err, result) {
+    if(err) {
+    console.log(err)
+    }
+    console.log(result);
+  
+});
+console.log(res)
+});
+
 module.exports = router;
