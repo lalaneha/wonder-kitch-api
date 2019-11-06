@@ -237,7 +237,7 @@ router.post('/addItems', function (req, res, next) {
   
 });
 
-router.put('/deleteItem/:id', function(req, res) {
+router.post('/deleteItem', function(req, res) {
   // Remove a note using the objectID
   User.update(
     {"_id": ObjectID(req.body.userID)}, {$pull: {items:{_id:ObjectID(req.body.itemID)}}})         
