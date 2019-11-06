@@ -4,6 +4,7 @@ var User = require('../models/user');
 var axios = require("axios");
 var querystring = require("querystring");
 var FormData = require("form-data");
+var ObjectID = require('mongodb').ObjectID;
 
 
 
@@ -236,6 +237,16 @@ router.post('/addItems', function (req, res, next) {
   
 });
 
+router.put('/deleteItem/:id', function(req, res) {
+  // Remove a note using the objectID
+  User.update(
+    {"_id": ObjectID(req.body.userID)}, {$pull: {items:{_id:ObjectID(req.body.itemID)}}})         
+.then(function(data){
+  return res.json(data)
+}).catch(function(err){
+  console.log(err)
+});
+});
 
 router.get('/AllItems/:query', function (req,res) {
   console.log(req.params.query)
