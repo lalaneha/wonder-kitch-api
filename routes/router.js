@@ -8,12 +8,10 @@ var path= require("path")
 var ObjectID = require('mongodb').ObjectID;
 
 
-
-
 // GET route for reading data
-router.get('/', function (req, res, next) {
-  return res.sendFile(path.join(__dirname + '/templateLogReg/index.html'));
-});
+// router.get('/', function (req, res, next) {
+//   return res.sendFile(path.join(__dirname + '/templateLogReg/index.html'));
+// });
 
 
 //POST route for updating data
@@ -39,7 +37,6 @@ router.post('/login', function (req, res, next) {
       }
       
       User.create(userData, function (error, user) {
-        console.log()
         let userExists = false;
         User.find({email:req.body.email})
         .then(function(dbres)
@@ -195,6 +192,7 @@ router.post('/login', function (req, res, next) {
   });
  
   router.get('/recipeQuestion/:query', function (req,res) {
+    console.log("Query results",res)
     axios( {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/quickAnswer",
