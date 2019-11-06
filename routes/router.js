@@ -103,7 +103,10 @@ router.post('/login', function (req, res, next) {
   
   // POST for logout 
   router.post('/logout', function (req, res, next) {
-    if (req.session) {
+    if (!req.session.userId) {
+      console.log("Unauthenticated call")
+      return res.status(401)
+    }
       // delete session object
       console.log("Logged out " + req.session.email)
       req.session.destroy(function (err) {
@@ -113,15 +116,19 @@ router.post('/login', function (req, res, next) {
           return res.redirect('/');
         }
       });
-    }
+    
   });
   
   router.get('/recipeSearch/:query', function (req,res) {
     console.log('/recipeSearch triggered')
+    if (!req.session.userId) {
+      console.log("Unauthenticated call")
+      return res.status(401)
+    }
    axios( {
-      method: 'GET',
-      url: "https://api.spoonacular.com/recipes/search",
-      params:{
+         method: 'GET',
+         url: "https://api.spoonacular.com/recipes/search",
+        params:{
         apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
         number: 100,
         query: req.params.query,
@@ -137,7 +144,10 @@ router.post('/login', function (req, res, next) {
   });
 
   router.get('/recipeIngredients/:query', function (req,res) {
-    console.log('/recipeIngredients triggered')
+    if (!req.session.userId) {
+      console.log("Unauthenticated call")
+      return res.status(401)
+    }
     axios( {
       method: 'GET',
       headers:{
@@ -157,6 +167,10 @@ router.post('/login', function (req, res, next) {
   });
 
   router.get('/recipeNutrition/:query', function (req,res) {
+    if (!req.session.userId) {
+      console.log("Unauthenticated call")
+      return res.status(401)
+    }
     axios( {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/"+req.params.query+"/information",
@@ -175,6 +189,10 @@ router.post('/login', function (req, res, next) {
   });
  
   router.get('/recipeSteps/:query', function (req,res) {
+    if (!req.session.userId) {
+      console.log("Unauthenticated call")
+      return res.status(401)
+    }
     axios( {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/"+req.params.query+"/analyzedInstructions",
@@ -193,6 +211,10 @@ router.post('/login', function (req, res, next) {
   });
  
   router.get('/recipeQuestion/:query', function (req,res) {
+    if (!req.session.userId) {
+      console.log("Unauthenticated call")
+      return res.status(401)
+    }
     axios( {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/quickAnswer",
@@ -210,6 +232,10 @@ router.post('/login', function (req, res, next) {
   });
  
   router.post('/takePicture/:query', function (req) {
+    if (!req.session.userId) {
+      console.log("Unauthenticated call")
+      return res.status(401)
+    }
     let result;
     let pic=req.params.query;
     const data = new FormData()
@@ -255,7 +281,11 @@ router.post('/login', function (req, res, next) {
 
        // GET route after registering
 router.put('/addItems', function (req, res, next) {
-   User.find({_id: req.body.userID}).then(function(user){
+  if (!req.session.userId) {
+    console.log("Unauthenticated call")
+    return res.status(401)
+  }
+   User.find({_id: req.session.userId}).then(function(user){
      let existItem=false;
      let itemId;
     for (let i = 0; i < user[0].items.length; i++){
