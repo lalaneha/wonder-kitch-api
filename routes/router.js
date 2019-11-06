@@ -4,6 +4,7 @@ var User = require('../models/user');
 var axios = require("axios");
 var querystring = require("querystring");
 var FormData = require("form-data");
+var ObjectID = require('mongodb').ObjectID;
 
 
 
@@ -240,25 +241,23 @@ router.post('/login', function (req, res, next) {
        // GET route after registering
 router.put('/addItems', function (req, res, next) {
    User.find({_id: req.body.userID}).then(function(user){
-     let existItem=false;
-     let itemId;
+     let existItem=false;   
     for (let i = 0; i < user[0].items.length; i++){
-      itemId=i;
       if(user[0].items[i].name.toLowerCase() === req.body.name.toLowerCase()){
         existItem=true;
-        console.log(user[0].items[0].quantity)
+        // console.log("qty", user[0].items[i].quantity)
         
-        console.log("req.body.quantity ",req.body.quantity)
-        const qty = user[0].items[0].quantity
-        const total = qty+req.body.quantity
-        console.log("total", total);
-        console.log(user)
+        // console.log("req.body.quantity ",req.body.quantity)
+        const qty = parseInt(user[0].items[i].quantity)        
+        const total = qty + parseInt(req.body.quantity)
+        // console.log("total", total);
+        // console.log(user)
         const newData = User.updateOne({"items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true})
         return newData
       }      
     }
      if(!existItem){
-      const newData = User.updateOne({"_id": user[0]._id}, {$push: {"items":{id:itemId+1, name:req.body.name,quantity:req.body.quantity}}, new: true})
+      const newData = User.updateOne({"_id": user[0]._id}, {$push: {items:{ name:req.body.name,quantity:req.body.quantity}}, new: true})
       
       return newData
     }
@@ -272,6 +271,16 @@ router.put('/addItems', function (req, res, next) {
   
 });
 
+router.put('/deleteItem/:id', function(req, res) {
+  // Remove a note using the objectID
+  User.update(
+    {"_id": ObjectID(req.body.userID)}, {$pull: {items:{_id:ObjectID(req.body.itemID)}}})         
+.then(function(data){
+  return res.json(data)
+}).catch(function(err){
+  console.log(err)
+});
+});
 
 
 module.exports = router;
