@@ -210,40 +210,39 @@ router.post('/login', function (req, res, next) {
   });
 
        // GET route after registering
-router.put('/addItems', function (req, res, next) {
+router.post('/addItems', function (req, res, next) {
    User.find({_id: req.body.userID}).then(function(user){
      let existItem=false;
-     let itemId;
     for (let i = 0; i < user[0].items.length; i++){
-      itemId=i;
       if(user[0].items[i].name.toLowerCase() === req.body.name.toLowerCase()){
         existItem=true;
-        console.log(user[0].items[0].quantity)
-        
-        console.log("req.body.quantity ",req.body.quantity)
-        const qty = user[0].items[0].quantity
-        const total = qty+req.body.quantity
-        console.log("total", total);
-        console.log(user)
+        const qty = parseFloat(user[0].items[i].quantity)
+        const total = qty+parseFloat(req.body.quantity)
         const newData = User.updateOne({"items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true})
         return newData
       }      
     }
-     if(!existItem){
-      const newData = User.updateOne({"_id": user[0]._id}, {$push: {"items":{id:itemId+1, name:req.body.name,quantity:req.body.quantity}}, new: true})
-      
+    if(!existItem){
+      const newData = User.updateOne({"_id": user[0]._id}, {$push: {"items":{name:req.body.name,quantity:req.body.quantity}}, new: true})
       return newData
+    
     }
   
   }).then(function(data){
-    console.log("data", data)
-    res.json(data)
+    return res.json(data)
   }).catch(function(err){
     throw err
   });
   
 });
 
+
+router.get('/AllItems/:query', function (req,res) {
+  console.log(req.params.query)
+  User.find({_id: req.params.query}).then(function(user){
+    return res.json(user);
+  })
+});
 
 
 module.exports = router;
