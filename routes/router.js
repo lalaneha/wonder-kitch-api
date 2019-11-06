@@ -208,11 +208,6 @@ router.post('/login', function (req, res, next) {
         console.log(err);
       });
   });
-<<<<<<< HEAD
- 
- 
-=======
->>>>>>> 359022489989efa35cc6e11b3034c761b218a165
 
        // GET route after registering
 router.post('/addItems', function (req, res, next) {
