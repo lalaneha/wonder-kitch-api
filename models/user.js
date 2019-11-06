@@ -10,13 +10,11 @@ const UserSchema = new Schema({
   date: { type: Date, default: Date.now },
   items: [
       {
-          id:{type: Number, required: true},
           name:{type: String, required: true},
           quantity:{type: Number},
           group:{type: String}
       }
-  ]
-  
+  ]  
 });
 
 UserSchema.statics.authenticate = function (email, password, callback) {
