@@ -126,10 +126,13 @@ router.post('/login', function (req, res, next) {
       return res.status(401)
     }
    axios( {
-         method: 'GET',
-         url: "https://api.spoonacular.com/recipes/search",
-        params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+    method: 'GET',
+    url: "https://api.spoonacular.com/recipes/search",
+    params:{
+      apiKey:process.env.SPOONY_API_KEY,
+        
+      
+          
         number: 100,
         query: req.params.query,
         instructionsRequired: true
@@ -153,7 +156,7 @@ router.post('/login', function (req, res, next) {
       headers:{
         "Content-Type":"application/octet-stream"
       },
-      url: "https://api.spoonacular.com/recipes/findByIngredients?apiKey=58cfd4a9c5d74b4b8a81d26ef617114f", 
+      url: "https://api.spoonacular.com/recipes/findByIngredients?apiKey=" + process.env.SPOONY_API_KEY, 
       params:{
         ingredients:req.params.query
         }
@@ -175,7 +178,7 @@ router.post('/login', function (req, res, next) {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/"+req.params.query+"/information",
       params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+        apiKey:process.env.SPOONY_API_KEY,
         id: req.params.query,
         includeNutrition: true
         }   
@@ -197,7 +200,7 @@ router.post('/login', function (req, res, next) {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/"+req.params.query+"/analyzedInstructions",
       params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+        apiKey:process.env.SPOONY_API_KEY,
         id: req.params.query,
         stepBreakdown: true
       }   
@@ -219,7 +222,7 @@ router.post('/login', function (req, res, next) {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/quickAnswer",
       params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+        apiKey:process.env.SPOONY_API_KEY,
         q: req.params.query
         }   
       })          
@@ -230,7 +233,7 @@ router.post('/login', function (req, res, next) {
         console.log(err);
       });
   });
- 
+
   router.post('/takePicture/:query', function (req) {
     if (!req.session.userId) {
       console.log("Unauthenticated call")
@@ -277,7 +280,6 @@ router.post('/login', function (req, res, next) {
        //   console.log(err);
        // });
        });
-
 
        // GET route after registering
 router.put('/addItems', function (req, res, next) {
