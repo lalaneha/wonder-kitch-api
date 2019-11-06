@@ -236,7 +236,7 @@ router.post('/addItems', function (req, res, next) {
   
 });
 
-router.put('/deleteItem/:id', function(req, res) {
+router.post('/deleteItem', function(req, res) {
   // Remove a note using the objectID
   User.update(
     {"_id": ObjectID(req.body.userID)}, {$pull: {items:{_id:ObjectID(req.body.itemID)}}})         
@@ -246,6 +246,31 @@ router.put('/deleteItem/:id', function(req, res) {
   console.log(err)
 });
 });
+
+//Update item name and quantity
+router.post('/updateItem', function (req, res, next) {
+  User.find({_id: req.body.userID}).then(function(user){  
+    for (let i = 0; i < user[0].items.length; i++){   
+          if(user[0].items[i]._id == req.body.itemID){
+            const newData = User.updateOne(
+              {
+                "items._id": user[0].items[i]._id,
+              }, 
+              {$set:
+                {
+                  "items.$.name":req.body.name,
+                  "items.$.quantity":req.body.quantity
+          }, new: true})
+            return newData
+          }      
+   }
+ }).then(function(data){
+   return res.json(data)
+ }).catch(function(err){
+   throw err
+ }); 
+});
+
 
 router.get('/AllItems/:query', function (req,res) {
   console.log(req.params.query)
