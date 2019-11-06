@@ -40,39 +40,24 @@ router.post('/login', function (req, res, next) {
         console.log()
         let userExists = false;
         User.find({email:req.body.email})
-        .then(function(res)
-        {if (res) {
-          userExists=true;
-          console.log("This is the end", res)
+        .then(function(dbres)
+        {if (dbres) {
+          console.log("This is the end", dbres)
           if (userExists){
       
             let err = new Error ('User already exists');
             console.log("User already exists")
-            return res.redirect('/login');
+        
           }
           else {
             console.log("it's creating a user")
             req.session.userId = user._id;
-            // return res.redirect('/');
+            return res.json(user);
+          
           }
           
         }}
         )
-        // if (userExists){
-      
-        //   let err = new Error ('User already exists');
-        //   console("User already exists")
-        //   return res.redirect('/login');
-        // }
-
-
-        // elseif (error) {
-        //   return next(error);}
-        //  else {
-        //   console.log("it's creating a user")
-        //   req.session.userId = user._id;
-        //   // return res.redirect('/');
-        // }
       });
       
     } else if (req.body.logemail && req.body.logpassword) {
@@ -116,8 +101,8 @@ router.post('/login', function (req, res, next) {
     });
   });
   
-  // GET for logout logout
-  router.get('/logout', function (req, res, next) {
+  // POST for logout 
+  router.post('/logout', function (req, res, next) {
     if (req.session) {
       // delete session object
       console.log("Logged out " + req.session.email)
@@ -223,7 +208,6 @@ router.post('/login', function (req, res, next) {
         console.log(err);
       });
   });
-
 
        // GET route after registering
 router.put('/addItems', function (req, res, next) {
