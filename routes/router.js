@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var User = require('../models/user');
-var Item = require('../models/item');
 var axios = require("axios");
 var querystring = require("querystring");
 var FormData = require("form-data");
@@ -194,49 +193,42 @@ router.post('/login', function (req, res, next) {
       });
   });
  
-  router.post('/takePicture/:query', function (req) {
-    let result;
-    let pic=req.params.query;
-    const data = new FormData()
-    data.append('file', pic)
-    console.log("this is it ndm",data)
-    //  await
-      axios({
-       method:"POST",
-       url:"https://api.taggun.io/api/receipt/v1/verbose/file", req,
-       headers:{
-         "Content-Type": "application/x-www-form-urlencoded",
-         "apikey":"ab7591d0fabe11e98bfadfb7eb1aa8b5",
-         "processData": false,
-         "contentType": false,
-         "mimeType": "multipart/form-data"
-       }      
-       }).then((params)=> {
-         console.log(params)
-         result=params.data.text.text;
-         console.log(params)
-       })
-       .catch((error)=>{
-         console.log(error)
-       })  
+ 
 
-
-      //  axios( {
-      //   method: 'post',
-      //   headers:{
-      //     "Content-Type":"application/x-www-form-urlencoded"
-      //   },
-      //   url: "https://api.spoonacular.com/food/detect?apiKey=58cfd4a9c5d74b4b8a81d26ef617114f", 
-      //   data: querystring.stringify({
-      //   text:result
-      //   })
-      // })       
-      // .then(function (response) {
-      //   return res.json(response.data)
-      // })
-      // .catch(function (err) {
-      //   console.log(err);
-      // });
+       // GET route after registering
+router.post('/addItems', function (req, res, next) {
+   User.find({_id: req.body.userID}).then(function(user){
+     let existItem=false;
+    for (let i = 0; i < user[0].items.length; i++){
+      if(user[0].items[i].name.toLowerCase() === req.body.name.toLowerCase()){
+        existItem=true;
+        const qty = parseFloat(user[0].items[i].quantity)
+        const total = qty+parseFloat(req.body.quantity)
+        const newData = User.updateOne({"items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true})
+        return newData
+      }      
+    }
+    if(!existItem){
+      const newData = User.updateOne({"_id": user[0]._id}, {$push: {"items":{name:req.body.name,quantity:req.body.quantity}}, new: true})
+      return newData
+    
+    }
+  
+  }).then(function(data){
+    return res.json(data)
+  }).catch(function(err){
+    throw err
   });
   
-  module.exports = router;
+});
+
+
+router.get('/AllItems/:query', function (req,res) {
+  console.log(req.params.query)
+  User.find({_id: req.params.query}).then(function(user){
+    return res.json(user);
+  })
+});
+
+
+module.exports = router;
