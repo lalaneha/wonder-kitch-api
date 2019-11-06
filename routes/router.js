@@ -7,6 +7,7 @@ var FormData = require("form-data");
 
 
 
+
 // GET route for reading data
 router.get('/', function (req, res, next) {
   return res.sendFile(path.join(__dirname + '/templateLogReg/index.html'));
@@ -15,7 +16,7 @@ router.get('/', function (req, res, next) {
 
 //POST route for updating data
 router.post('/login', function (req, res, next) {
-
+  
 
   if (req.body.password !== req.body.passwordConf) {
     var err = new Error('Passwords do not match.');
@@ -36,13 +37,27 @@ router.post('/login', function (req, res, next) {
       }
       
       User.create(userData, function (error, user) {
-        if (error) {
-          return next(error);
-        } else {
-          console.log(req)
-          req.session.userId = user._id;
-          return res.redirect('/');
-        }
+        console.log()
+        let userExists = false;
+        User.find({email:req.body.email})
+        .then(function(dbres)
+        {if (dbres) {
+          console.log("This is the end", dbres)
+          if (userExists){
+      
+            let err = new Error ('User already exists');
+            console.log("User already exists")
+        
+          }
+          else {
+            console.log("it's creating a user")
+            req.session.userId = user._id;
+            return res.json(user);
+          
+          }
+          
+        }}
+        )
       });
       
     } else if (req.body.logemail && req.body.logpassword) {
@@ -76,6 +91,7 @@ router.post('/login', function (req, res, next) {
       } else {
         if (user === null) {
           var err = new Error('Not authorized! Go back!');
+          console.log(EvalError)
           err.status = 400;
           return next(err);
         } else {
@@ -85,8 +101,8 @@ router.post('/login', function (req, res, next) {
     });
   });
   
-  // GET for logout logout
-  router.get('/logout', function (req, res, next) {
+  // POST for logout 
+  router.post('/logout', function (req, res, next) {
     if (req.session) {
       // delete session object
       console.log("Logged out " + req.session.email)
@@ -106,7 +122,7 @@ router.post('/login', function (req, res, next) {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/search",
       params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+        apiKey:process.env.SPOONY_API_KEY,
         number: 100,
         query: req.params.query,
         instructionsRequired: true
@@ -127,7 +143,7 @@ router.post('/login', function (req, res, next) {
       headers:{
         "Content-Type":"application/octet-stream"
       },
-      url: "https://api.spoonacular.com/recipes/findByIngredients?apiKey=58cfd4a9c5d74b4b8a81d26ef617114f", 
+      url: "https://api.spoonacular.com/recipes/findByIngredients?apiKey=" + process.env.SPOONY_API_KEY, 
       params:{
         ingredients:req.params.query
         }
@@ -145,7 +161,7 @@ router.post('/login', function (req, res, next) {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/"+req.params.query+"/information",
       params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+        apiKey:process.env.SPOONY_API_KEY,
         id: req.params.query,
         includeNutrition: true
         }   
@@ -163,7 +179,7 @@ router.post('/login', function (req, res, next) {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/"+req.params.query+"/analyzedInstructions",
       params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+        apiKey:process.env.SPOONY_API_KEY,
         id: req.params.query,
         stepBreakdown: true
       }   
@@ -181,7 +197,7 @@ router.post('/login', function (req, res, next) {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/quickAnswer",
       params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+        apiKey:process.env.SPOONY_API_KEY,
         q: req.params.query
         }   
       })          
@@ -192,8 +208,11 @@ router.post('/login', function (req, res, next) {
         console.log(err);
       });
   });
+<<<<<<< HEAD
  
  
+=======
+>>>>>>> 359022489989efa35cc6e11b3034c761b218a165
 
        // GET route after registering
 router.post('/addItems', function (req, res, next) {
