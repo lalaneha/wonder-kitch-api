@@ -5,6 +5,8 @@ var axios = require("axios");
 var querystring = require("querystring");
 var FormData = require("form-data");
 var path= require("path")
+var ObjectID = require('mongodb').ObjectID;
+
 
 
 
@@ -16,7 +18,7 @@ router.get('/', function (req, res, next) {
 
 //POST route for updating data
 router.post('/login', function (req, res, next) {
-
+  
 
   if (req.body.password !== req.body.passwordConf) {
     var err = new Error('Passwords do not match.');
@@ -37,13 +39,27 @@ router.post('/login', function (req, res, next) {
       }
       
       User.create(userData, function (error, user) {
-        if (error) {
-          return next(error);
-        } else {
-          console.log(req)
-          req.session.userId = user._id;
-          return res.redirect('/');
-        }
+        console.log()
+        let userExists = false;
+        User.find({email:req.body.email})
+        .then(function(dbres)
+        {if (dbres) {
+          console.log("This is the end", dbres)
+          if (userExists){
+      
+            let err = new Error ('User already exists');
+            console.log("User already exists")
+        
+          }
+          else {
+            console.log("it's creating a user")
+            req.session.userId = user._id;
+            return res.json(user);
+          
+          }
+          
+        }}
+        )
       });
       
     } else if (req.body.logemail && req.body.logpassword) {
@@ -54,8 +70,10 @@ router.post('/login', function (req, res, next) {
           return next(err);
         } else {
           req.session.userId = user._id;
+         
           console.log("User logged in " + user)
-          return res.redirect('/');
+       
+          return res.json(user)
         }
       });
     } else {
@@ -75,6 +93,7 @@ router.post('/login', function (req, res, next) {
       } else {
         if (user === null) {
           var err = new Error('Not authorized! Go back!');
+          console.log(EvalError)
           err.status = 400;
           return next(err);
         } else {
@@ -84,8 +103,8 @@ router.post('/login', function (req, res, next) {
     });
   });
   
-  // GET for logout logout
-  router.get('/logout', function (req, res, next) {
+  // POST for logout 
+  router.post('/logout', function (req, res, next) {
     if (req.session) {
       // delete session object
       console.log("Logged out " + req.session.email)
@@ -105,7 +124,7 @@ router.post('/login', function (req, res, next) {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/search",
       params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+        apiKey:process.env.SPOONY_API_KEY,
         number: 100,
         query: req.params.query,
         instructionsRequired: true
@@ -126,7 +145,7 @@ router.post('/login', function (req, res, next) {
       headers:{
         "Content-Type":"application/octet-stream"
       },
-      url: "https://api.spoonacular.com/recipes/findByIngredients?apiKey=58cfd4a9c5d74b4b8a81d26ef617114f", 
+      url: "https://api.spoonacular.com/recipes/findByIngredients?apiKey=" + process.env.SPOONY_API_KEY, 
       params:{
         ingredients:req.params.query
         }
@@ -144,7 +163,7 @@ router.post('/login', function (req, res, next) {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/"+req.params.query+"/information",
       params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+        apiKey:process.env.SPOONY_API_KEY,
         id: req.params.query,
         includeNutrition: true
         }   
@@ -162,7 +181,7 @@ router.post('/login', function (req, res, next) {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/"+req.params.query+"/analyzedInstructions",
       params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+        apiKey:process.env.SPOONY_API_KEY,
         id: req.params.query,
         stepBreakdown: true
       }   
@@ -180,7 +199,7 @@ router.post('/login', function (req, res, next) {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/quickAnswer",
       params:{
-        apiKey:"58cfd4a9c5d74b4b8a81d26ef617114f",
+        apiKey:process.env.SPOONY_API_KEY,
         q: req.params.query
         }   
       })          
@@ -191,50 +210,51 @@ router.post('/login', function (req, res, next) {
         console.log(err);
       });
   });
- 
-  router.post('/takePicture/:query', function (req) {
-    let result;
-    let pic=req.params.query;
-    const data = new FormData()
-    data.append('file', pic)
-    console.log("this is it ndm",data)
-    //  await
-      axios({
-       method:"POST",
-       url:"https://api.taggun.io/api/receipt/v1/verbose/file", req,
-       headers:{
-         "Content-Type": "application/x-www-form-urlencoded",
-         "apikey":"ab7591d0fabe11e98bfadfb7eb1aa8b5",
-         "processData": false,
-         "contentType": false,
-         "mimeType": "multipart/form-data"
-       }      
-       }).then((params)=> {
-         console.log(params)
-         result=params.data.text.text;
-         console.log(params)
-       })
-       .catch((error)=>{
-         console.log(error)
-       })  
 
-
-      //  axios( {
-      //   method: 'post',
-      //   headers:{
-      //     "Content-Type":"application/x-www-form-urlencoded"
-      //   },
-      //   url: "https://api.spoonacular.com/food/detect?apiKey=58cfd4a9c5d74b4b8a81d26ef617114f", 
-      //   data: querystring.stringify({
-      //   text:result
-      //   })
-      // })       
-      // .then(function (response) {
-      //   return res.json(response.data)
-      // })
-      // .catch(function (err) {
-      //   console.log(err);
-      // });
+       // GET route after registering
+router.post('/addItems', function (req, res, next) {
+   User.find({_id: req.body.userID}).then(function(user){
+     let existItem=false;
+    for (let i = 0; i < user[0].items.length; i++){
+      if(user[0].items[i].name.toLowerCase() === req.body.name.toLowerCase()){
+        existItem=true;
+        const qty = parseFloat(user[0].items[i].quantity)
+        const total = qty+parseFloat(req.body.quantity)
+        const newData = User.updateOne({"items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true})
+        return newData
+      }      
+    }
+    if(!existItem){
+      const newData = User.updateOne({"_id": user[0]._id}, {$push: {"items":{name:req.body.name,quantity:req.body.quantity}}, new: true})
+      return newData
+    
+    }
+  
+  }).then(function(data){
+    return res.json(data)
+  }).catch(function(err){
+    throw err
   });
   
-  module.exports = router;
+});
+
+router.put('/deleteItem/:id', function(req, res) {
+  // Remove a note using the objectID
+  User.update(
+    {"_id": ObjectID(req.body.userID)}, {$pull: {items:{_id:ObjectID(req.body.itemID)}}})         
+.then(function(data){
+  return res.json(data)
+}).catch(function(err){
+  console.log(err)
+});
+});
+
+router.get('/AllItems/:query', function (req,res) {
+  console.log(req.params.query)
+  User.find({_id: req.params.query}).then(function(user){
+    return res.json(user);
+  })
+});
+
+
+module.exports = router;
