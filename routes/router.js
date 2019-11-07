@@ -246,7 +246,7 @@ router.post('/login', function (req, res, next) {
       });
   });
 
-       // GET route after registering
+      //  GET route after registering
 router.post('/addItems', function (req, res, next) {
    User.find({_id: req.body.userID}).then(function(user){
      let existItem=false;
@@ -318,3 +318,4 @@ router.get('/AllItems/:query', function (req,res) {
 
 
 module.exports = router;
+// Hello
