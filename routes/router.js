@@ -34,6 +34,7 @@ router.post('/login', function (req, res, next) {
         email: req.body.email,
         user: req.body.username,
         password: req.body.password,
+        servingSize: req.body.servingSize,
       }
       
       User.create(userData, function (error, user) {
@@ -94,7 +95,7 @@ router.post('/login', function (req, res, next) {
           err.status = 400;
           return next(err);
         } else {
-          return res.send( user.username,user.email)
+          return res.json( user)
         }
       }
     });
