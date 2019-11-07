@@ -8,12 +8,10 @@ var path= require("path")
 var ObjectID = require('mongodb').ObjectID;
 
 
-
-
 // GET route for reading data
-router.get('/', function (req, res, next) {
-  return res.sendFile(path.join(__dirname + '/templateLogReg/index.html'));
-});
+// router.get('/', function (req, res, next) {
+//   return res.sendFile(path.join(__dirname + '/templateLogReg/index.html'));
+// });
 
 
 //POST route for updating data
@@ -36,10 +34,10 @@ router.post('/login', function (req, res, next) {
         email: req.body.email,
         user: req.body.username,
         password: req.body.password,
+        servingSize: req.body.servingSize,
       }
       
       User.create(userData, function (error, user) {
-        console.log()
         let userExists = false;
         User.find({email:req.body.email})
         .then(function(dbres)
@@ -97,7 +95,7 @@ router.post('/login', function (req, res, next) {
           err.status = 400;
           return next(err);
         } else {
-          return res.send( user.username,user.email)
+          return res.json( user)
         }
       }
     });
@@ -195,6 +193,7 @@ router.post('/login', function (req, res, next) {
   });
  
   router.get('/recipeQuestion/:query', function (req,res) {
+    console.log("Query results",res)
     axios( {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/quickAnswer",
@@ -211,7 +210,43 @@ router.post('/login', function (req, res, next) {
       });
   });
 
-       // GET route after registering
+  router.get('/recipeJoke', function (req,res) {
+    console.log("haha",res)
+    axios( {
+      method: 'GET',
+      url: "https://api.spoonacular.com/food/jokes/random",
+      params:{
+        apiKey:process.env.SPOONY_API_KEY,
+        q: req.params.query
+        }   
+      })          
+      .then(function (response) {
+        return res.json(response.data)
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  });
+
+  router.get('/recipeTrivia', function (req,res) {
+    console.log("whoa I didn't know that!",res)
+    axios( {
+      method: 'GET',
+      url: "https://api.spoonacular.com/food/trivia/random",
+      params:{
+        apiKey:process.env.SPOONY_API_KEY,
+        q: req.params.query
+        }   
+      })          
+      .then(function (response) {
+        return res.json(response.data)
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  });
+
+      //  GET route after registering
 router.post('/addItems', function (req, res, next) {
    User.find({_id: req.body.userID}).then(function(user){
      let existItem=false;
@@ -283,3 +318,4 @@ router.get('/AllItems/:query', function (req,res) {
 
 
 module.exports = router;
+// Hello

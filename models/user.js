@@ -14,6 +14,7 @@ const UserSchema = new Schema({
           quantity:{type: Number},
           group:{type: String}
       }
+      
   ]  
 });
 
