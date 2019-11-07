@@ -210,6 +210,42 @@ router.post('/login', function (req, res, next) {
       });
   });
 
+  router.get('/recipeJoke', function (req,res) {
+    console.log("haha",res)
+    axios( {
+      method: 'GET',
+      url: "https://api.spoonacular.com/food/jokes/random",
+      params:{
+        apiKey:process.env.SPOONY_API_KEY,
+        q: req.params.query
+        }   
+      })          
+      .then(function (response) {
+        return res.json(response.data)
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  });
+
+  router.get('/recipeTrivia', function (req,res) {
+    console.log("whoa I didn't know that!",res)
+    axios( {
+      method: 'GET',
+      url: "https://api.spoonacular.com/food/trivia/random",
+      params:{
+        apiKey:process.env.SPOONY_API_KEY,
+        q: req.params.query
+        }   
+      })          
+      .then(function (response) {
+        return res.json(response.data)
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  });
+
        // GET route after registering
 router.post('/addItems', function (req, res, next) {
    User.find({_id: req.body.userID}).then(function(user){
