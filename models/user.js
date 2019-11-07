@@ -11,7 +11,7 @@ const UserSchema = new Schema({
   items: [
       {
           name:{type: String, required: true},
-          quantity:{type: Number},
+          quantity:{type: Number, default: 1},
           group:{type: String}
       }
       
