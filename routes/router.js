@@ -4,14 +4,14 @@ var User = require('../models/user');
 var axios = require("axios");
 var querystring = require("querystring");
 var FormData = require("form-data");
-
-
+var path= require("path")
+var ObjectID = require('mongodb').ObjectID;
 
 
 // GET route for reading data
-router.get('/', function (req, res, next) {
-  return res.sendFile(path.join(__dirname + '/templateLogReg/index.html'));
-});
+// router.get('/', function (req, res, next) {
+//   return res.sendFile(path.join(__dirname + '/templateLogReg/index.html'));
+// });
 
 
 //POST route for updating data
@@ -34,45 +34,30 @@ router.post('/login', function (req, res, next) {
         email: req.body.email,
         user: req.body.username,
         password: req.body.password,
+        servingSize: req.body.servingSize,
       }
       
       User.create(userData, function (error, user) {
-        console.log()
         let userExists = false;
         User.find({email:req.body.email})
-        .then(function(res)
-        {if (res) {
-          userExists=true;
-          console.log("This is the end", res)
+        .then(function(dbres)
+        {if (dbres) {
+          console.log("This is the end", dbres)
           if (userExists){
       
             let err = new Error ('User already exists');
             console.log("User already exists")
-            return res.redirect('/login');
+        
           }
           else {
             console.log("it's creating a user")
             req.session.userId = user._id;
-            // return res.redirect('/');
+            return res.json(user);
+          
           }
           
         }}
         )
-        // if (userExists){
-      
-        //   let err = new Error ('User already exists');
-        //   console("User already exists")
-        //   return res.redirect('/login');
-        // }
-
-
-        // elseif (error) {
-        //   return next(error);}
-        //  else {
-        //   console.log("it's creating a user")
-        //   req.session.userId = user._id;
-        //   // return res.redirect('/');
-        // }
       });
       
     } else if (req.body.logemail && req.body.logpassword) {
@@ -110,14 +95,14 @@ router.post('/login', function (req, res, next) {
           err.status = 400;
           return next(err);
         } else {
-          return res.send( user.username,user.email)
+          return res.json( user)
         }
       }
     });
   });
   
-  // GET for logout logout
-  router.get('/logout', function (req, res, next) {
+  // POST for logout 
+  router.post('/logout', function (req, res, next) {
     if (req.session) {
       // delete session object
       console.log("Logged out " + req.session.email)
@@ -208,6 +193,7 @@ router.post('/login', function (req, res, next) {
   });
  
   router.get('/recipeQuestion/:query', function (req,res) {
+    console.log("Query results",res)
     axios( {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/quickAnswer",
@@ -224,42 +210,112 @@ router.post('/login', function (req, res, next) {
       });
   });
 
+  router.get('/recipeJoke', function (req,res) {
+    console.log("haha",res)
+    axios( {
+      method: 'GET',
+      url: "https://api.spoonacular.com/food/jokes/random",
+      params:{
+        apiKey:process.env.SPOONY_API_KEY,
+        q: req.params.query
+        }   
+      })          
+      .then(function (response) {
+        return res.json(response.data)
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  });
 
-       // GET route after registering
-router.put('/addItems', function (req, res, next) {
+  router.get('/recipeTrivia', function (req,res) {
+    console.log("whoa I didn't know that!",res)
+    axios( {
+      method: 'GET',
+      url: "https://api.spoonacular.com/food/trivia/random",
+      params:{
+        apiKey:process.env.SPOONY_API_KEY,
+        q: req.params.query
+        }   
+      })          
+      .then(function (response) {
+        return res.json(response.data)
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  });
+
+      //  GET route after registering
+router.post('/addItems', function (req, res, next) {
    User.find({_id: req.body.userID}).then(function(user){
      let existItem=false;
-     let itemId;
     for (let i = 0; i < user[0].items.length; i++){
-      itemId=i;
       if(user[0].items[i].name.toLowerCase() === req.body.name.toLowerCase()){
         existItem=true;
-        console.log(user[0].items[0].quantity)
-        
-        console.log("req.body.quantity ",req.body.quantity)
-        const qty = user[0].items[0].quantity
-        const total = qty+req.body.quantity
-        console.log("total", total);
-        console.log(user)
+        const qty = parseFloat(user[0].items[i].quantity)
+        const total = qty+parseFloat(req.body.quantity)
         const newData = User.updateOne({"items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true})
         return newData
       }      
     }
-     if(!existItem){
-      const newData = User.updateOne({"_id": user[0]._id}, {$push: {"items":{id:itemId+1, name:req.body.name,quantity:req.body.quantity}}, new: true})
-      
+    if(!existItem){
+      const newData = User.updateOne({"_id": user[0]._id}, {$push: {"items":{name:req.body.name,quantity:req.body.quantity}}, new: true})
       return newData
+    
     }
   
   }).then(function(data){
-    console.log("data", data)
-    res.json(data)
+    return res.json(data)
   }).catch(function(err){
     throw err
   });
   
 });
 
+router.post('/deleteItem', function(req, res) {
+  // Remove a note using the objectID
+  User.update(
+    {"_id": ObjectID(req.body.userID)}, {$pull: {items:{_id:ObjectID(req.body.itemID)}}})         
+.then(function(data){
+  return res.json(data)
+}).catch(function(err){
+  console.log(err)
+});
+});
+
+//Update item name and quantity
+router.post('/updateItem', function (req, res, next) {
+  User.find({_id: req.body.userID}).then(function(user){  
+    for (let i = 0; i < user[0].items.length; i++){   
+          if(user[0].items[i]._id == req.body.itemID){
+            const newData = User.updateOne(
+              {
+                "items._id": user[0].items[i]._id,
+              }, 
+              {$set:
+                {
+                  "items.$.name":req.body.name,
+                  "items.$.quantity":req.body.quantity
+          }, new: true})
+            return newData
+          }      
+   }
+ }).then(function(data){
+   return res.json(data)
+ }).catch(function(err){
+   throw err
+ }); 
+});
+
+
+router.get('/AllItems/:query', function (req,res) {
+  console.log(req.params.query)
+  User.find({_id: req.params.query}).then(function(user){
+    return res.json(user);
+  })
+});
 
 
 module.exports = router;
+// Hello
