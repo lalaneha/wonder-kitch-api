@@ -117,7 +117,6 @@ router.post('/login', function (req, res, next) {
   });
   
   router.get('/recipeSearch/:query', function (req,res) {
-    console.log('/recipeSearch triggered')
    axios( {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/search",
@@ -137,7 +136,6 @@ router.post('/login', function (req, res, next) {
   });
 
   router.get('/recipeIngredients/:query', function (req,res) {
-    console.log('/recipeIngredients triggered')
     axios( {
       method: 'GET',
       headers:{
@@ -193,7 +191,6 @@ router.post('/login', function (req, res, next) {
   });
  
   router.get('/recipeQuestion/:query', function (req,res) {
-    console.log("Query results",res)
     axios( {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/quickAnswer",
@@ -211,7 +208,6 @@ router.post('/login', function (req, res, next) {
   });
 
   router.get('/recipeJoke', function (req,res) {
-    console.log("haha",res)
     axios( {
       method: 'GET',
       url: "https://api.spoonacular.com/food/jokes/random",
@@ -229,7 +225,6 @@ router.post('/login', function (req, res, next) {
   });
 
   router.get('/recipeTrivia', function (req,res) {
-    console.log("whoa I didn't know that!",res)
     axios( {
       method: 'GET',
       url: "https://api.spoonacular.com/food/trivia/random",
@@ -357,7 +352,6 @@ router.post('/deleteRecipe', function(req, res) {
 
 
 router.get('/AllItems/:query', function (req,res) {
-  console.log(req.params.query)
   User.find({_id: req.params.query}).then(function(user){
     return res.json(user);
   })
