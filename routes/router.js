@@ -284,6 +284,20 @@ router.post('/deleteItem', function(req, res) {
 });
 });
 
+router.post('/addRecipe', function(req, res) {
+  User.update(
+    {"_id": ObjectID(req.body.userID)}, {$push: {recipes:{  
+      recipeId: req.body.recipeId,
+      image: req.body.image,
+      name: req.body.name
+    }}})         
+.then(function(data){
+  return res.json(data)
+}).catch(function(err){
+  console.log(err)
+});
+});
+
 //Update item name and quantity
 router.post('/updateItem', function (req, res, next) {
   User.find({_id: req.body.userID}).then(function(user){  
@@ -306,6 +320,39 @@ router.post('/updateItem', function (req, res, next) {
  }).catch(function(err){
    throw err
  }); 
+});
+
+router.post('/cook', function (req, res, next) {
+  User.find({_id: req.body.userID}).then(function(user){  
+    for (let i = 0; i < user[0].recipes.length; i++){   
+          if(user[0].recipes[i]._id == req.body.recipeID){
+            const newData = User.updateOne(
+              {
+                "recipes._id": user[0].recipes[i]._id,
+              }, 
+              {$set:
+                {
+                  "recipes.$.cooked":true
+          }, new: true})
+            return newData
+          }      
+   }
+ }).then(function(data){
+   return res.json(data)
+ }).catch(function(err){
+   throw err
+ }); 
+});
+
+router.post('/deleteRecipe', function(req, res) {
+  // Remove a note using the objectID
+  User.update(
+    {"_id": ObjectID(req.body.userID)}, {$pull: {recipes:{_id:ObjectID(req.body.recipeID)}}})         
+.then(function(data){
+  return res.json(data)
+}).catch(function(err){
+  console.log(err)
+});
 });
 
 
