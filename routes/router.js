@@ -16,8 +16,7 @@ var ObjectID = require('mongodb').ObjectID;
 
 //POST route for updating data
 router.post('/login', function (req, res, next) {
-  
-
+  console.log("check this!!!")
   if (req.body.password !== req.body.passwordConf) {
     var err = new Error('Passwords do not match.');
     err.status = 400;
@@ -26,7 +25,6 @@ router.post('/login', function (req, res, next) {
   }
   
   if (req.body.email &&
-    req.body.username &&
     req.body.password &&
     req.body.passwordConf) {
       
@@ -36,29 +34,28 @@ router.post('/login', function (req, res, next) {
         password: req.body.password,
         servingSize: req.body.servingSize,
       }
+
       
-      User.create(userData, function (error, user) {
-        let userExists = false;
-        User.find({email:req.body.email})
-        .then(function(dbres)
-        {if (dbres) {
-          console.log("This is the end", dbres)
-          if (userExists){
+      User.findOne({email:req.body.email})
+      .then(function(dbres)
+      {if (dbres) {
+        console.log(dbres)
+          let err = new Error ('User already exists');
+          console.log("User already exists")
       
-            let err = new Error ('User already exists');
-            console.log("User already exists")
+        }
+        else {
+          console.log("it's creating a user")
+         
+          User.create(userData, function (error, user) {
+          req.session.userId = user._id;
+          });
+          
+          return res.json(user);
+        }
         
-          }
-          else {
-            console.log("it's creating a user")
-            req.session.userId = user._id;
-            return res.json(user);
-          
-          }
-          
-        }}
-        )
-      });
+      })
+    
       
     } else if (req.body.logemail && req.body.logpassword) {
       User.authenticate(req.body.logemail, req.body.logpassword, function (error, user) {
@@ -68,14 +65,10 @@ router.post('/login', function (req, res, next) {
           return next(err);
         } else {
           req.session.userId = user._id;
-         
-          console.log("User logged in " + user)
-       
           return res.json(user)
         }
       });
     } else {
-      console.log(req.body)
       var err = new Error('All fields required.');
       err.status = 400;
       return next(err);
@@ -137,7 +130,6 @@ router.post('/login', function (req, res, next) {
   });
 
   router.get('/recipeIngredients/:query', function (req,res) {
-    console.log('/recipeIngredients triggered')
     axios( {
       method: 'GET',
       headers:{
@@ -193,7 +185,6 @@ router.post('/login', function (req, res, next) {
   });
  
   router.get('/recipeQuestion/:query', function (req,res) {
-    console.log("Query results",res)
     axios( {
       method: 'GET',
       url: "https://api.spoonacular.com/recipes/quickAnswer",
@@ -211,7 +202,7 @@ router.post('/login', function (req, res, next) {
   });
 
   router.get('/recipeJoke', function (req,res) {
-    console.log("haha",res)
+
     axios( {
       method: 'GET',
       url: "https://api.spoonacular.com/food/jokes/random",
@@ -229,7 +220,7 @@ router.post('/login', function (req, res, next) {
   });
 
   router.get('/recipeTrivia', function (req,res) {
-    console.log("whoa I didn't know that!",res)
+
     axios( {
       method: 'GET',
       url: "https://api.spoonacular.com/food/trivia/random",
@@ -310,7 +301,6 @@ router.post('/updateItem', function (req, res, next) {
 
 
 router.get('/AllItems/:query', function (req,res) {
-  console.log(req.params.query)
   User.find({_id: req.params.query}).then(function(user){
     return res.json(user);
   })
