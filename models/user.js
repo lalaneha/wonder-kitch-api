@@ -12,6 +12,7 @@ const UserSchema = new Schema({
       {
           name:{type: String, required: true},
           quantity:{type: Number, default: 1},
+          metric:{type: String},
           group:{type: String}
       }
       
