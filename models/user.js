@@ -11,10 +11,19 @@ const UserSchema = new Schema({
   items: [
       {
           name:{type: String, required: true},
-          quantity:{type: Number},
+          quantity:{type: Number, default: 1},
           group:{type: String}
       }
       
+  ],
+  recipes:[
+    {
+      recipeId:{type: Number, required: true},
+      image:{type: String},
+      cooked:{type: Boolean, default: false},
+      name:{type: String, required: true},
+      date:{type: Date, default: Date.now}
+    }
   ]  
 });
 
