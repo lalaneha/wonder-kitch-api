@@ -247,11 +247,17 @@ router.post('/addItems', function (req, res, next) {
      let existItem=false;
     for (let i = 0; i < user[0].items.length; i++){
       if(user[0].items[i].name.toLowerCase() === req.body.name.toLowerCase()){
+        console.log(user[0].items[i].name.toLowerCase(),req.body.name.toLowerCase())
         existItem=true;
         const qty = parseFloat(user[0].items[i].quantity)
         const total = qty+parseFloat(req.body.quantity)
-        const newData = User.updateOne({"items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true})
-        return newData
+        console.log(total,"      ",user[0].items[i].name)
+        User.updateOne({"items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true}).then(function (params) {
+          console.log(params)
+        }).catch(function (err) {
+          throw err
+        })
+        // return newData
       }      
     }
     if(!existItem){
@@ -268,8 +274,24 @@ router.post('/addItems', function (req, res, next) {
   
 });
 
+router.post('/cookItems', function (req, res, next) {
+   User.find({_id: req.body.userID}).then(function(user){
+    for (let i = 0; i < user[0].items.length; i++){
+      if(user[0].items[i].name.toLowerCase() === req.body.name.toLowerCase()){
+        const qty = parseFloat(user[0].items[i].quantity)
+        const total = qty-parseFloat(req.body.quantity)
+        const newData = User.updateOne({"items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true})
+        return newData
+      }      
+    }  
+  }).then(function(data){
+    return res.json(data)
+  }).catch(function(err){
+    throw err
+  });  
+});
+
 router.post('/deleteItem', function(req, res) {
-  // Remove a note using the objectID
   User.update(
     {"_id": ObjectID(req.body.userID)}, {$pull: {items:{_id:ObjectID(req.body.itemID)}}})         
 .then(function(data){
@@ -318,16 +340,18 @@ router.post('/updateItem', function (req, res, next) {
 });
 
 router.post('/cook', function (req, res, next) {
+  console.log(req.body)
   User.find({_id: req.body.userID}).then(function(user){  
     for (let i = 0; i < user[0].recipes.length; i++){   
-          if(user[0].recipes[i]._id == req.body.recipeID){
+          if(user[0].recipes[i].recipeId == req.body.recipeID){
             const newData = User.updateOne(
               {
                 "recipes._id": user[0].recipes[i]._id,
               }, 
               {$set:
                 {
-                  "recipes.$.cooked":true
+                  "recipes.$.cooked":true,
+                  "recipes.$.date":req.body.date
           }, new: true})
             return newData
           }      
@@ -343,6 +367,17 @@ router.post('/deleteRecipe', function(req, res) {
   // Remove a note using the objectID
   User.update(
     {"_id": ObjectID(req.body.userID)}, {$pull: {recipes:{_id:ObjectID(req.body.recipeID)}}})         
+.then(function(data){
+  return res.json(data)
+}).catch(function(err){
+  console.log(err)
+});
+});
+
+router.post('/serving', function(req, res) {
+  // Remove a note using the objectID
+  User.update(
+    {"_id": ObjectID(req.body.userID)}, {servingSize:req.body.serving})         
 .then(function(data){
   return res.json(data)
 }).catch(function(err){
