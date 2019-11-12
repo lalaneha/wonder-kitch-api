@@ -8,6 +8,7 @@ var path= require("path")
 var ObjectID = require('mongodb').ObjectID;
 
 
+
 // GET route for reading data
 // router.get('/', function (req, res, next) {
 //   return res.sendFile(path.join(__dirname + '/templateLogReg/index.html'));
@@ -26,7 +27,6 @@ router.post('/login', function (req, res, next) {
   }
   
   if (req.body.email &&
-    req.body.username &&
     req.body.password &&
     req.body.passwordConf) {
       
@@ -38,11 +38,13 @@ router.post('/login', function (req, res, next) {
       }
       
       User.create(userData, function (error, user) {
+        console.log()
         let userExists = false;
         User.find({email:req.body.email})
-        .then(function(dbres)
-        {if (dbres) {
-          console.log("This is the end", dbres)
+        .then(function(res)
+        {if (res) {
+          userExists=true;
+          console.log("This is the end", res)
           if (userExists){
       
             let err = new Error ('User already exists');
@@ -252,7 +254,7 @@ router.post('/addItems', function (req, res, next) {
         const qty = parseFloat(user[0].items[i].quantity)
         const total = qty+parseFloat(req.body.quantity)
         console.log(total,"      ",user[0].items[i].name)
-        User.updateOne({"items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true}).then(function (params) {
+        User.updateOne({"_id": user[0]._id, "items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true}).then(function (params) {
           console.log(params)
         }).catch(function (err) {
           throw err
