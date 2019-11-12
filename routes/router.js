@@ -26,7 +26,6 @@ router.post('/login', function (req, res, next) {
   }
   
   if (req.body.email &&
-    req.body.username &&
     req.body.password &&
     req.body.passwordConf) {
       
@@ -252,7 +251,7 @@ router.post('/addItems', function (req, res, next) {
         const qty = parseFloat(user[0].items[i].quantity)
         const total = qty+parseFloat(req.body.quantity)
         console.log(total,"      ",user[0].items[i].name)
-        User.updateOne({"items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true}).then(function (params) {
+        User.updateOne({"_id": user[0]._id, "items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true}).then(function (params) {
           console.log(params)
         }).catch(function (err) {
           throw err
