@@ -282,7 +282,7 @@ router.post('/cookItems', function (req, res, next) {
       if(user[0].items[i].name.toLowerCase() === req.body.name.toLowerCase()){
         const qty = parseFloat(user[0].items[i].quantity)
         const total = qty-parseFloat(req.body.quantity)
-        const newData = User.updateOne({"items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true})
+        const newData = User.updateOne({"_id": user[0]._id,"items.name": user[0].items[i].name}, {$set: {"items.$.quantity":total}, new: true})
         return newData
       }      
     }  
