@@ -27,33 +27,27 @@ Wonderkitch is mobile friendly and easy to use! It does require user authenticat
 
 * 1)Users enter the homepage and can either login or create an account.
 Login
-![](public/)
+![](images/WK1.png)
 
 Create Account
-![](public/)
+![](images/WK0.png)
 
 They can also click on the "learn more about us" link to view the information about the team that built this site
-![](public/)
-
 
 * 2)Once they are logged into WonderKitch they are directed to "view/update inventory" or "recipe search" 
-![](public/)
+![](images/wk2.png)
 
 * 3)View/Update inventory will lead them to a page where they can scan or upload their grocery receipt or manually upload items. The receipt scan feature will scan any grocery reciept and pull only the food items.
-
-Blank page view
-![](public/) 
-
-Scan reciept 
-![](public/)
+ 
+![](images/WK5.png)
 
 * 4)The Search page allows users to ask any nutrition related question, get a recipe based on key ingredients or simply view recipes based on ingredients that they have in their inventory. 
-![](public/)
+![](images/wk4.png)
 
 * 5) There is also the option to view saved recipes. Users can click this in the navbar and view recipes that they have previously saved. They can view or delete these recipes. 
 
 * 6) Finally users can click the logOut button to log out of their account. This will lead the to the logOut page that displays  both a nutition fact and a joke.
-![](public/)
+![](images/wk6.png)
 
 ## Link to deployed site:
-(https://wonderktich.herokuapp.com) 
+(https://wonderktich.herokuapp.com)
